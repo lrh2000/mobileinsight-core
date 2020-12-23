@@ -234,24 +234,35 @@ _decode_by_fmt(const Fmt fmt[], int n_fmt,
         PyObject *decoded = NULL;
         const char *p = b + offset + n_consumed;
         switch (fmt[i].type) {
+            case UINT_ZERO_AS_NA:
+            case UINT_ONES_AS_NA:
             case UINT: {
                 unsigned int ii = 0;
                 unsigned long long iiii = -1LL;
+                bool is_na = false;
                 switch (fmt[i].len) {
                     case 1:
                         ii = *((unsigned char *) p);
+                        is_na = (ii == 0x00 && fmt[i].type == UINT_ZERO_AS_NA) ||
+                                (ii == 0xFF && fmt[i].type == UINT_ONES_AS_NA);
                         break;
                     case 2:
                         ii = *((unsigned short *) p);
+                        is_na = (ii == 0x0000 && fmt[i].type == UINT_ZERO_AS_NA) ||
+                                (ii == 0xFFFF && fmt[i].type == UINT_ONES_AS_NA);
                         break;
                     case 4:
                         ii = *((unsigned int *) p);
+                        is_na = (!ii && fmt[i].type == UINT_ZERO_AS_NA) ||
+                                (!~ii && fmt[i].type == UINT_ONES_AS_NA);
                         break;
                     case 8: {
                         // iiii = *((unsigned long long *) p);
                         unsigned char buffer64[256] = {0};
                         memcpy(buffer64, p, sizeof(unsigned long long));
                         iiii = *reinterpret_cast<unsigned long long *>(buffer64);
+                        is_na = (!iiii && fmt[i].type == UINT_ZERO_AS_NA) ||
+                                (!~iiii && fmt[i].type == UINT_ONES_AS_NA);
                         break;
                     }
                     default:
@@ -259,13 +270,16 @@ _decode_by_fmt(const Fmt fmt[], int n_fmt,
                         break;
                 }
                 // Convert to a Python integer object or a Python long integer object
-                if (fmt[i].len <= 4)
+                if (is_na)
+                    decoded = Py_BuildValue("s", "NA");
+                else if (fmt[i].len <= 4)
                     decoded = Py_BuildValue("I", ii);
                 else
                     decoded = Py_BuildValue("K", iiii);
                 n_consumed += fmt[i].len;
                 break;
             }
+
             case UINT_BIG_ENDIAN: {
                 unsigned int ii = 0;
                 unsigned long long iiii = -1LL;
@@ -432,9 +446,20 @@ _decode_by_fmt(const Fmt fmt[], int n_fmt,
                 n_consumed += fmt[i].len;
                 break;
 
-            case PLACEHOLDER: {
+            case PLACEHOLDER:
                 assert(fmt[i].len == 0);
                 decoded = Py_BuildValue("I", 0);
+                break;
+
+            case NR_RSRP:
+            case NR_RSRQ: {
+                assert(fmt[i].len == 4);
+                int ii = *((int *) p);
+                if (ii < 0)
+                    decoded = Py_BuildValue("f", ii / 128.0);
+                else
+                    decoded = Py_BuildValue("s", "NA");
+                n_consumed += fmt[i].len;
                 break;
             }
 

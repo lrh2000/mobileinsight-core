@@ -127,6 +127,8 @@ enum LogPacketType {
     LTE_NB1_ML1_Search_PBCH_Decode = 0xB250,
     LTE_NB1_ML1_DLM_Decode_Page = 0xB251,
 
+    NR_PHY_Searcher_Measurement_Database = 0xB97F,
+
     NR_RRC_OTA_Packet = 0xB821,
 };
 
@@ -334,6 +336,9 @@ const ValueName LogPacketTypeID_To_Name [] = {
         "LTE_NB1_ML1_Search_PBCH_Decode", true},
     {LTE_NB1_ML1_DLM_Decode_Page,
         "LTE_NB1_ML1_DLM_Decode_Page", true},
+
+    {NR_PHY_Searcher_Measurement_Database,
+        "5G_NR_PHY_Searcher_Measurement_Database", true},
 
     {NR_RRC_OTA_Packet,
         "5G_NR_RRC_OTA_Packet", true},

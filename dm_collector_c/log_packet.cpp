@@ -51,6 +51,7 @@
 #include "srch_tng_1x_searcher_dump.h"
 #include "wcdma_rrc_states.h"
 #include "wcdma_search_cell_reselection_rank.h"
+#include "nr_phy_searcher_measurement_database.h"
 
 
 // #define SSTR(x) static_cast< std::ostringstream & >( \
@@ -12031,6 +12032,12 @@ on_demand_decode (const char *b, size_t length, LogPacketType type_id, PyObject*
                                      ARRAY_SIZE(LtePhyCncm_Fmt, Fmt),
                                      b, offset, length, result);
             offset += _decode_lte_phy_connected_neighbor_cell_meas_payload(b, offset, length, result);
+            break;
+        case NR_PHY_Searcher_Measurement_Database:
+            offset += _decode_by_fmt(NrPhySmdb_Fmt,
+                                     ARRAY_SIZE(NrPhySmdb_Fmt, Fmt),
+                                     b, offset, length, result);
+            offset += _decode_nr_phy_searcher_measurement_database_payload(b, offset, length, result);
             break;
         case NR_RRC_OTA_Packet:
             offset += _decode_by_fmt(NrRrcOtaPacketFmt,

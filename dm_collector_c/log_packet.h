@@ -27,6 +27,10 @@ enum FmtType {
     SKIP,    // This field is ignored (but bytes are consumed)
     PLACEHOLDER,    // This field is created with a dummy value (no byte is consumed)
     WCDMA_MEAS,    // Used for RSCP/RSSI/ECN0 in LTE_PHY_IRAT_MDB
+    UINT_ZERO_AS_NA,
+    UINT_ONES_AS_NA,
+    NR_RSRP,
+    NR_RSRQ,
 };
 
 struct Fmt {
@@ -403,7 +407,6 @@ const ValueName LteRrcOtaPduType_v19[] = {
         {0x34, "LTE-RRC_UL_DCCH_NB"},
         {0x32, "LTE-RRC_UL_CCCH_NB"},
 };
-
 
 // ------------------------------------------------------------
 // NR_RRC_OTA_Packet
